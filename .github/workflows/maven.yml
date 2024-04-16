@@ -8,12 +8,14 @@
 
 name: Java CI with Maven
 
+# Push und Pull-Request-Events die auf den main Branch gehen als Auslösern.
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
+# Alle Aktionen die ausgeführt werden
 jobs:
   build:
 
@@ -28,17 +30,21 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+# Tests im Backend-Verzeichnis werden asugeführt
     - name: Test
       run: mvn -f backend/ --batch-mode -Dmaven.test.failure.ignore=true test
 
+# Kompiliert das Projekt und erstellt ein JAR-Artefakt und staging Verzeichnis
     - name: Build with Maven
       run: mvn -B package --file backend/pom.xml && mkdir staging && cp backend/target/*.jar staging
 
+# Lädt das JAR-Artefakt als Package hoch
     - uses: actions/upload-artifact@v4
       with:
        name: Package
        path: staging
-       
+
+# Erstellt sowohl bei Erfolg als auch bei Fehlschlag Testbericht und formatiert ihn als JUnit-Testbericht 
     - name: Report
       uses: dorny/test-reporter@v1
       if: always()
